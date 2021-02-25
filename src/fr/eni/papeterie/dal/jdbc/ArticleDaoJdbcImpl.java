@@ -2,11 +2,11 @@ package fr.eni.papeterie.dal.jdbc;
 
 import fr.eni.papeterie.bo.Article;
 import fr.eni.papeterie.bo.Stylo;
+import fr.eni.papeterie.dal.ArticleDao;
 import fr.eni.papeterie.dal.DALException;
 import fr.eni.papeterie.bo.Ramette;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,8 +14,6 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 
 /**
  * Développement d'une applicaion JAVA en couche
@@ -27,29 +25,18 @@ import com.microsoft.sqlserver.jdbc.SQLServerDriver;
  */
 
 /**
- * Implémentation du driver JDBC - Couche DAL
- * 
- * Le driver est chargé en mémoire avec une méthode static anonyme.
- * On ouvre et ferme la connexion à chaque appel de méthodes DML.
+ * Implémentation du driver JDBC - Couche DAL BO Article
  */
 
-public class ArticleDaoJdbcImpl {
+public class ArticleDaoJdbcImpl implements ArticleDao {
 	
 	// ----- STATICS
-	
-	// Chargement du driver
-	static {
-		try {
-			DriverManager.registerDriver(new SQLServerDriver());
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 	
 	// REQUETES PREPAREES
 
 	private final static String sqlSelectById = "SELECT * FROM Articles WHERE idArticle = ?";
+	private final static String sqlSelectByMarque = "SELECT * FROM Articles WHERE marque = ?";
+	private final static String sqlSelectByMotCle = "SELECT * FROM Articles WHERE marque LIKE ? OR designation LIKE ? ";
 	private final static String sqlSelectAll = "SELECT * FROM Articles";
 	
 	private final static String sqlUpdate = "UPDATE Articles SET reference=?,marque=?,designation=?,prixUnitaire=?,qteStock=?,grammage=?,couleur=? "
@@ -68,18 +55,14 @@ public class ArticleDaoJdbcImpl {
 		super();
 	}
 	
-	/**
-	 * SELECT * FROM ARTICLES
-	 * @return List<Article> liste des éléments de la table Articles
-	 * @throws DALException
-	 */
+	@Override
 	public List<Article> selectAll() throws DALException {
 		Connection connection = null;
 		Statement stmt = null;
 		ResultSet rs = null;
 		List<Article> liste = new ArrayList<>();
 		try {
-			connection = this.getConnection();
+			connection = JdbcTools.getConnection();
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(sqlSelectAll);
 			while( rs.next() ) {
@@ -98,27 +81,93 @@ public class ArticleDaoJdbcImpl {
 				try {
 					stmt.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					throw new DALException("Echec de la fermeture : ", e);
 				}
 			}
 		}
-		this.closeConnection();
+		JdbcTools.closeConnection();
 		return liste;
 	}
 	
-	/**
-	 * SELECT * FROM Articles WHERE id=idArticle
-	 * @param idArticle
-	 * @return Article
-	 * @throws DALException
-	 */
+	@Override
+	public List<Article> selectByMarque(String marque) throws DALException {
+		Connection connection = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		List<Article> liste = new ArrayList<>();
+		try {
+			connection = JdbcTools.getConnection();
+			stmt = connection.prepareStatement(sqlSelectByMarque);
+			stmt.setString(1, marque);
+			rs = stmt.executeQuery();
+			if( rs.next() ) {
+				String type = rs.getString("type").trim();
+				if( type.equalsIgnoreCase(STYLO) ) {
+					liste.add(new Stylo( rs.getInt("idArticle"),rs.getString("marque"), rs.getString("reference"), rs.getString("designation"), rs.getFloat("prixUnitaire"), rs.getInt("qteStock"), rs.getString("couleur")));
+				}
+				if( type.equalsIgnoreCase(RAMETTE) ) {
+					liste.add(new Ramette( rs.getInt("idArticle"),rs.getString("marque"), rs.getString("reference"), rs.getString("designation"), rs.getFloat("prixUnitaire"), rs.getInt("qteStock"), rs.getInt("grammage"))) ;
+				}
+			}
+		} catch(SQLException e) {
+			throw new DALException("selectById a échoué : ", e);
+		} finally {
+			if(stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {
+					throw new DALException("Echec de la fermeture : ", e);
+				}
+			}
+		}
+		JdbcTools.closeConnection();
+		return liste;
+	}
+
+	@Override
+	public List<Article> selectByMotCle(String motCle) throws DALException {
+		Connection connection = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		List<Article> liste = new ArrayList<>();
+		try {
+			connection = JdbcTools.getConnection();
+			stmt = connection.prepareStatement(sqlSelectByMotCle);
+			stmt.setString(1, "%" + motCle + "%");
+			stmt.setString(2, "%" + motCle + "%");
+			rs = stmt.executeQuery();
+			if( rs.next() ) {
+				String type = rs.getString("type").trim();
+				if( type.equalsIgnoreCase(STYLO) ) {
+					liste.add(new Stylo( rs.getInt("idArticle"),rs.getString("marque"), rs.getString("reference"), rs.getString("designation"), rs.getFloat("prixUnitaire"), rs.getInt("qteStock"), rs.getString("couleur")));
+				}
+				if( type.equalsIgnoreCase(RAMETTE) ) {
+					liste.add(new Ramette( rs.getInt("idArticle"),rs.getString("marque"), rs.getString("reference"), rs.getString("designation"), rs.getFloat("prixUnitaire"), rs.getInt("qteStock"), rs.getInt("grammage"))) ;
+				}
+			}
+		} catch(SQLException e) {
+			throw new DALException("selectById a échoué : ", e);
+		} finally {
+			if(stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {
+					throw new DALException("Echec de la fermeture : ", e);
+				}
+			}
+		}
+		JdbcTools.closeConnection();
+		return liste;
+	}
+	
+	@Override
 	public Article selectById(int idArticle) throws DALException {
 		Connection connection = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 		Article article = null;
 		try {
-			connection = this.getConnection();
+			connection = JdbcTools.getConnection();
 			stmt = connection.prepareStatement(sqlSelectById);
 			stmt.setInt(1, idArticle);
 			rs = stmt.executeQuery();
@@ -138,27 +187,22 @@ public class ArticleDaoJdbcImpl {
 				try {
 					stmt.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					throw new DALException("Echec de la fermeture : ", e);
 				}
 			}
 		}
-		this.closeConnection();
+		JdbcTools.closeConnection();
 		return article;
 	}
 
-	/**
-	 * INSERT INTO Articles, met l'idArticle àjour avec l'id généré par la BDD
-	 * @param a Article
-	 * @return int id généré par la BDD
-	 * @throws DALException
-	 */
+	@Override
 	public int insert(Article a) throws DALException {
 		Connection connection = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 		int idArticle = -1;
 		try {
-			connection = this.getConnection();
+			connection = JdbcTools.getConnection();
 			stmt = connection.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
 			
 			stmt.setString(1, a.getReference());
@@ -189,27 +233,22 @@ public class ArticleDaoJdbcImpl {
 				try {
 					stmt.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					throw new DALException("Echec de la fermeture : ", e);
 				}
 			}
 		}
-		this.closeConnection();
+		JdbcTools.closeConnection();
 		a.setIdArticle(idArticle);
 		return idArticle;
 	}
 
-	/**
-	 * UPDATE Articles SET ... 
-	 * @param a Article
-	 * @return boolean success
-	 * @throws DALException
-	 */
+	@Override
 	public boolean update(Article a) throws DALException {
 		Connection connection = null;
 		PreparedStatement stmt = null;
 		boolean success = false;
 		try {
-			connection = this.getConnection();
+			connection = JdbcTools.getConnection();
 			stmt = connection.prepareStatement(sqlUpdate);
 			
 			stmt.setString(1, a.getReference());
@@ -240,26 +279,21 @@ public class ArticleDaoJdbcImpl {
 				try {
 					stmt.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					throw new DALException("Echec de la fermeture : ", e);
 				}
 			}
 		}
-		this.closeConnection();
+		JdbcTools.closeConnection();
 		return success;
 	}
 
-	/**
-	 * DELETE FROM Articles WHERE idArticle=
-	 * @param idArticle
-	 * @return boolean success
-	 * @throws DALException
-	 */
+	@Override
 	public boolean delete(int idArticle) throws DALException {
 		Connection connection = null;
 		PreparedStatement stmt = null;
 		boolean success = false;
 		try {
-			connection = this.getConnection();
+			connection = JdbcTools.getConnection();
 			stmt = connection.prepareStatement(sqlDelete);
 			stmt.setInt(1, idArticle);
 			
@@ -276,21 +310,22 @@ public class ArticleDaoJdbcImpl {
 				try {
 					stmt.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					throw new DALException("Echec de la fermeture : ", e);
 				}
 			}
 		}
-		this.closeConnection();
+		JdbcTools.closeConnection();
 		return success;
 	}
 	
+	@Override
 	public boolean deleteAll() throws DALException {
 		Connection connection = null;
 		Statement stmt = null;
 		boolean success = false;
 		
 		try {
-			connection = this.getConnection();
+			connection = JdbcTools.getConnection();
 			stmt = connection.createStatement();
 			
 			if( stmt.executeUpdate("DELETE FROM Articles") > 0) {
@@ -305,49 +340,12 @@ public class ArticleDaoJdbcImpl {
 				try {
 					stmt.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					throw new DALException("Echec de la fermeture : ", e);
 				}
 			}
 		}
-		this.closeConnection();
+		JdbcTools.closeConnection();
 		return success;
-	}
-	
-	// ----- PRIVATE
-	private Connection con = null;
-	private final String conUrl = "jdbc:sqlserver://localhost:1433;dataBaseName=PAPETERIE_DB";
-	private final String user = "SA";
-	private final String pw = "<P@ssw0rd";
-	
-	/**
-	 * Ouvre la connection au serveur
-	 * @return Connection object pour envoyer la requêe
-	 */
-	private Connection getConnection() {
-		if(this.con == null) {
-			try {
-				this.con = DriverManager.getConnection(this.conUrl, this.user, this.pw);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return this.con;
-	}
-	
-	/**
-	 * Ferme la connection en cours à la BDD.
-	 */
-	private void closeConnection() {
-		if(this.con != null) {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		this.con = null;
 	}
 
 }
