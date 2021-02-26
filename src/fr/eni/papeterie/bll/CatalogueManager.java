@@ -9,10 +9,28 @@ import fr.eni.papeterie.dal.ArticleDao;
 import fr.eni.papeterie.dal.DALException;
 import fr.eni.papeterie.dal.DaoFactory;
 
+/**
+ * Développement d'une applicaion JAVA en couche
+ * TP Papeterie
+ * @author Jonathan CAMARA
+ *	ENI - 2021
+ *
+ * CatalogueManager.java
+ */
+
+/**
+ * Traitement des BO vers la DAL
+ */
+
 public class CatalogueManager {
 	
 	//----- STATICS
 	
+	/**
+	 * Singleton
+	 * @return CatalogueManager
+	 * @throws BLLException
+	 */
 	public static CatalogueManager getInstance() throws BLLException {
 		if(manager == null) {
 			manager = new CatalogueManager();
@@ -24,6 +42,11 @@ public class CatalogueManager {
 	
 	//----- PUBLIC
 	
+	/**
+	 * Ajout article en BDD (après validation des champs)
+	 * @param a Article
+	 * @throws BLLException
+	 */
 	public void addArticle(Article a) throws BLLException {
 		try {
 			validerArticle(a);
@@ -32,7 +55,12 @@ public class CatalogueManager {
 			throw new BLLException("Ajouter article / Echec / ", e);
 		}
 	}
-
+	
+	/**
+	 * Liste des articles en BDD
+	 * @return List<Article>
+	 * @throws BLLException
+	 */
 	public List<Article> getCatalogue() throws BLLException {
 		try {
 			return daoArticle.selectAll();
@@ -40,7 +68,13 @@ public class CatalogueManager {
 			throw new BLLException("Catalogue article / Echec / ", e);
 		}
 	}
-
+	
+	/**
+	 * Retour d'un article des la BDD avec son id
+	 * @param idArticle
+	 * @return Article
+	 * @throws BLLException
+	 */
 	public Article getArticle(int id) throws BLLException {
 		try {
 			return daoArticle.selectById(id);
@@ -49,6 +83,11 @@ public class CatalogueManager {
 		}
 	}
 	
+	/**
+	 * Mise à jour article dans la BDD (après validation des champs)
+	 * @param a Article
+	 * @throws BLLException
+	 */
 	public void updateArticle(Article a) throws BLLException {
 		try {
 			validerArticle(a);
@@ -58,6 +97,11 @@ public class CatalogueManager {
 		}
 	}
 
+	/**
+	 * Suppression d'un article en BDD avec son id
+	 * @param index int
+	 * @throws BLLException
+	 */
 	public void removeArticle(int index) throws BLLException {
 		try {
 			daoArticle.delete(index);
@@ -69,6 +113,11 @@ public class CatalogueManager {
 	//----- PRIVATE
 	private ArticleDao daoArticle = DaoFactory.getArticleDao();
 	
+	/**
+	 * Validation des champs de l'article avant insertion en BDD
+	 * @param a Article
+	 * @throws BLLException
+	 */
 	private void validerArticle(Article a) throws BLLException {
 		if( a.getIdArticle() < 0  ) {
 			throw new BLLException("Champ Id Article Invalide.");

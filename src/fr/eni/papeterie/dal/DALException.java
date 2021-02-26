@@ -1,5 +1,18 @@
 package fr.eni.papeterie.dal;
 
+/**
+ * Développement d'une applicaion JAVA en couche
+ * TP Papeterie
+ * @author ENI
+ *	ENI - 2021
+ *
+ * DALException.java
+ */
+
+/**
+ * Erreur en couche DAL
+ */
+
 public class DALException extends Exception {
 	/**
 	 * 

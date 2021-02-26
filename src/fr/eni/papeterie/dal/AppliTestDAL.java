@@ -6,6 +6,19 @@ import fr.eni.papeterie.bo.Article;
 import fr.eni.papeterie.bo.Ramette;
 import fr.eni.papeterie.bo.Stylo;
 
+/**
+ * Développement d'une applicaion JAVA en couche
+ * TP Papeterie
+ * @author ENI
+ *	ENI - 2021
+ *
+ * AppliTestDAL.java
+ */
+
+/**
+ * Suite de tests couche DAL
+ *
+ */
 public class AppliTestDAL {
 
 	public static void main(String[] args) {

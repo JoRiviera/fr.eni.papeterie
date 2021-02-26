@@ -9,6 +9,19 @@ import fr.eni.papeterie.bo.Stylo;
 import fr.eni.papeterie.dal.DALException;
 import fr.eni.papeterie.dal.jdbc.ArticleDaoJdbcImpl;
 
+/**
+ * Développement d'une applicaion JAVA en couche
+ * TP Papeterie
+ * @author ENI
+ *	ENI - 2021
+ *
+ * AppliTestBLL.java
+ */
+
+/**
+ * Suite de test couche BLL
+ */
+
 public class AppliTestBLL {
 
 	public static void main(String[] args) {

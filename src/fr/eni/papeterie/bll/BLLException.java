@@ -1,5 +1,18 @@
 package fr.eni.papeterie.bll;
 
+/**
+ * Développement d'une applicaion JAVA en couche
+ * TP Papeterie
+ * @author ENI
+ *	ENI - 2021
+ *
+ * BLLException.java
+ */
+
+/**
+ * Exception niveau couche BLL
+ */
+
 public class BLLException extends Exception {
 
 	/**

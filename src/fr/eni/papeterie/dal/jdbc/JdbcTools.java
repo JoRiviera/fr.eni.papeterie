@@ -18,7 +18,7 @@ import fr.eni.papeterie.dal.Settings;
  */
 
 /**
- * Implémentation du driver JDBC - Couche DAL BO Article
+ * Connexion avec driver JDBC SQL Server
  */
 
 public class JdbcTools {
