@@ -1,21 +1,21 @@
-package fr.eni.papeterie.dal;
+package fr.eni.papeterie.bll;
 
-public class DALException extends Exception {
+public class BLLException extends Exception {
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	//Constructeurs
-	public DALException() {
+	
+	public BLLException() {
 		super();
 	}
 	
-	public DALException(String message) {
+	public BLLException(String message) {
 		super(message);
 	}
 	
-	public DALException(String message, Throwable exception) {
+	public BLLException(String message, Throwable exception) {
 		super(message, exception);
 	}
 
@@ -27,4 +27,5 @@ public class DALException extends Exception {
 		
 		return sb.toString() ;
 	}
+
 }
