@@ -51,7 +51,7 @@ public interface ArticleDao {
 	public Article selectById(int id) throws DALException;
 	
 	/**
-	 * INSERT INTO Articles, met l'idArticle àjour avec l'id généré par la BDD
+	 * INSERT INTO Articles, met l'idArticle à jour avec l'id généré par la BDD
 	 * @param a Article
 	 * @return int id généré par la BDD
 	 * @throws DALException
@@ -80,4 +80,11 @@ public interface ArticleDao {
 	 * @throws DALException
 	 */
 	public boolean deleteAll() throws DALException;
+	
+	/**
+	 * SELECT couleur FROM Articles WHERE couleur NOT NULL GROUP BY couleur 
+	 * @return
+	 * @throws DALException
+	 */
+	public String[] selectCouleur() throws DALException;
 }

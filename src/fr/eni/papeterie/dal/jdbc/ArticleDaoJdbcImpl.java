@@ -45,6 +45,9 @@ public class ArticleDaoJdbcImpl implements ArticleDao {
 											+ "VALUES(?,?,?,?,?,?,?,?)";
 	private final static String sqlDelete =  "DELETE FROM Articles WHERE idArticle = ?";
 	
+	private final static String sqlCouleur = "SELECT couleur FROM Articles"
+											+ " WHERE couleur IS NOT NULL"
+											+ " GROUP BY couleur";
 	// Types d'articles
 	private final static String STYLO = "stylo";
 	private final static String RAMETTE = "ramette";
@@ -346,6 +349,34 @@ public class ArticleDaoJdbcImpl implements ArticleDao {
 		}
 		JdbcTools.closeConnection();
 		return success;
+	}
+
+	@Override
+	public String[] selectCouleur() throws DALException {
+		Connection connection = null;
+		Statement stmt = null;
+		ResultSet rs = null; 
+		List<String> couleurs = new ArrayList<>();
+		try {
+			connection = JdbcTools.getConnection();
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(sqlCouleur);
+			while( rs.next() ) {
+				couleurs.add(rs.getString("couleur"));
+			}
+		} catch(SQLException e) {
+			throw new DALException("selectAll a échoué : ", e);
+		} finally {
+			if(stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {
+					throw new DALException("Echec de la fermeture : ", e);
+				}
+			}
+		}
+		JdbcTools.closeConnection();
+		return couleurs.toArray(new String[couleurs.size()]);
 	}
 
 }
